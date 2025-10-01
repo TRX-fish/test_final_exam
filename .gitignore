@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 配置文件（如果包含敏感信息）
+# config.ini
+
+# 日志文件
+*.log
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# 上传的文件
+static/images/*
+!static/images/.gitkeep
+static/paper_images/*
+!static/paper_images/.gitkeep
+static/question_images/*
+!static/question_images/.gitkeep
+
+# Node modules (前端)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local 
