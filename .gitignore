@@ -50,4 +50,14 @@ static/question_images/*
 frontend/node_modules/
 frontend/dist/
 frontend/.env
-frontend/.env.local 
+frontend/.env.local
+
+# Go 后端
+backend-go/go.sum
+backend-go/main
+backend-go/backend-go
+backend-go/*.log
+backend-go/static/paper_images/*
+backend-go/static/question_images/*
+!backend-go/static/paper_images/.gitkeep
+!backend-go/static/question_images/.gitkeep 
