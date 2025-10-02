@@ -6,7 +6,9 @@ import (
 )
 
 type Config struct {
-	MySQL MySQLConfig
+	MySQL   MySQLConfig
+	Storage StorageConfig
+	OSS     OSSConfig
 }
 
 type MySQLConfig struct {
@@ -15,6 +17,18 @@ type MySQLConfig struct {
 	Host     string
 	Port     string
 	DB       string
+}
+
+type StorageConfig struct {
+	Type string
+}
+
+type OSSConfig struct {
+	Endpoint        string
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	BaseURL         string
 }
 
 var AppConfig *Config
@@ -32,6 +46,16 @@ func LoadConfig() error {
 			Host:     cfg.Section("mysql").Key("host").String(),
 			Port:     cfg.Section("mysql").Key("port").String(),
 			DB:       cfg.Section("mysql").Key("db").String(),
+		},
+		Storage: StorageConfig{
+			Type: cfg.Section("storage").Key("type").String(),
+		},
+		OSS: OSSConfig{
+			Endpoint:        cfg.Section("oss").Key("endpoint").String(),
+			AccessKeyID:     cfg.Section("oss").Key("access_key_id").String(),
+			AccessKeySecret: cfg.Section("oss").Key("access_key_secret").String(),
+			BucketName:      cfg.Section("oss").Key("bucket_name").String(),
+			BaseURL:         cfg.Section("oss").Key("base_url").String(),
 		},
 	}
 	return nil

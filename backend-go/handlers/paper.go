@@ -22,6 +22,15 @@ func AddPaper(c *gin.Context) {
 		utils.Error(c, 500, utils.DBERR, "添加试卷失败")
 		return
 	}
+	
+	// 更新文件类型和大小
+	if input.FileType != "" {
+		database.DB.Model(&models.Paper{}).Where("id = ?", paper.ID).Updates(map[string]interface{}{
+			"file_type":    input.FileType,
+			"file_size":    input.FileSize,
+			"storage_type": "oss",
+		})
+	}
 
 	utils.SuccessWithMsg(c, "试卷添加成功", gin.H{"id": paper.ID})
 }
@@ -81,15 +90,25 @@ func GetPapers(c *gin.Context) {
 
 	result := make([]gin.H, 0, len(papers))
 	for _, p := range papers {
-		result = append(result, gin.H{
-			"id":         p.ID,
-			"course":     p.Course,
-			"year":       p.Year,
-			"term":       p.Term,
-			"college":    p.College,
-			"image_path": p.ImagePath,
-			"created_at": p.CreatedAt.Format("2006-01-02 15:04:05"),
-		})
+		paperData := gin.H{
+			"id":           p.ID,
+			"course":       p.Course,
+			"year":         p.Year,
+			"term":         p.Term,
+			"college":      p.College,
+			"image_path":   p.ImagePath,
+			"file_type":    p.FileType,
+			"file_size":    p.FileSize,
+			"storage_type": p.StorageType,
+			"created_at":   p.CreatedAt.Format("2006-01-02 15:04:05"),
+		}
+		
+		// 如果是PDF，生成file_url
+		if p.FileType == "pdf" && p.ImagePath != "" {
+			paperData["file_url"] = services.GetPaperFileURL(p.ImagePath)
+		}
+		
+		result = append(result, paperData)
 	}
 
 	utils.Success(c, gin.H{
@@ -110,4 +129,25 @@ func GetStats(c *gin.Context) {
 		"questions": questionCount,
 		"users":     userCount,
 	})
+} 
+
+// ProxyPDF 代理PDF文件（解决CORS问题）
+func ProxyPDF(c *gin.Context) {
+	filePath := c.Query("file")
+	if filePath == "" {
+		utils.Error(c, 400, utils.PARAMERR, "缺少文件路径")
+		return
+	}
+
+	// 从OSS获取文件URL
+	fileURL := services.GetPaperFileURL(filePath)
+	if fileURL == "" {
+		utils.Error(c, 404, utils.NODATA, "文件不存在")
+		return
+	}
+
+	// 重定向到OSS URL，设置正确的响应头
+	c.Header("Content-Type", "application/pdf")
+	c.Header("Content-Disposition", "inline")
+	c.Redirect(302, fileURL)
 } 

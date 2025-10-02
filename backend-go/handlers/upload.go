@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend-go/services"
 	"backend-go/utils"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 )
@@ -47,6 +48,47 @@ func UploadQuestionImage(c *gin.Context) {
 	}
 
 	utils.SuccessWithMsg(c, "题目图片上传成功", gin.H{"image_path": imagePath})
+}
+
+// UploadPaperPDF 上传试卷PDF文件
+func UploadPaperPDF(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		utils.Error(c, 400, utils.PARAMERR, "没有选择文件")
+		return
+	}
+
+	if file.Filename == "" {
+		utils.Error(c, 400, utils.PARAMERR, "没有选择文件")
+		return
+	}
+
+	// 验证文件类型（只允许PDF）
+	if filepath.Ext(file.Filename) != ".pdf" {
+		utils.Error(c, 400, utils.PARAMERR, "只支持PDF格式文件")
+		return
+	}
+
+	// 验证文件大小（最大50MB）
+	if file.Size > 50*1024*1024 {
+		utils.Error(c, 400, utils.PARAMERR, "PDF文件不能超过50MB")
+		return
+	}
+
+	// 使用统一存储接口上传
+	filePath, err := services.UploadPaperFile(file)
+	if err != nil {
+		utils.Error(c, 500, utils.IOERR, err.Error())
+		return
+	}
+
+	// 返回文件路径和完整URL
+	fileURL := services.GetPaperFileURL(filePath)
+	utils.SuccessWithMsg(c, "PDF上传成功", gin.H{
+		"file_path": filePath,
+		"file_url":  fileURL,
+		"file_size": file.Size,
+	})
 }
 
 func DeleteImage(c *gin.Context) {

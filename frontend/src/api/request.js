@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:5000', // 后端API地址
+  baseURL: 'http://47.93.252.105:5000', // 后端API地址
   timeout: 5000
 })
 

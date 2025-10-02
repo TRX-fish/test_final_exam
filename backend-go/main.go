@@ -5,6 +5,7 @@ import (
 	"backend-go/database"
 	"backend-go/handlers"
 	"backend-go/middleware"
+	"backend-go/services"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -22,12 +23,16 @@ func main() {
 		log.Fatal("数据库连接失败:", err)
 	}
 
+	// 初始化存储服务
+	services.InitStorage()
+	log.Printf("存储服务已初始化: %s", config.AppConfig.Storage.Type)
+
 	// 创建 Gin 实例
 	r := gin.Default()
 
 	// 配置 CORS
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173", "http://47.93.252.105:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -50,6 +55,7 @@ func main() {
 		api.POST("/papers", handlers.AddPaper)
 		api.PUT("/papers/:id/image", handlers.UpdatePaperImage)
 		api.GET("/papers", handlers.GetPapers)
+		api.GET("/papers/pdf-proxy", handlers.ProxyPDF)
 		api.GET("/stats", handlers.GetStats)
 
 		// 题目相关路由
@@ -61,6 +67,7 @@ func main() {
 		// 上传相关路由
 		api.POST("/upload/paper-image", handlers.UploadPaperImage)
 		api.POST("/upload/question-image", handlers.UploadQuestionImage)
+		api.POST("/upload/paper-pdf", handlers.UploadPaperPDF)
 		api.DELETE("/upload/delete-image", handlers.DeleteImage)
 	}
 

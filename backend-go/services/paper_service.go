@@ -11,6 +11,9 @@ type PaperInput struct {
 	Term      string `json:"term"`
 	College   string `json:"college"`
 	ImagePath string `json:"image_path"`
+	FileType  string `json:"file_type"`
+	FileSize  int    `json:"file_size"`
+	FileURL   string `json:"file_url"`
 }
 
 func AddPaper(input PaperInput) (*models.Paper, error) {
